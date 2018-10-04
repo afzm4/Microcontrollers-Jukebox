@@ -1,0 +1,413 @@
+C51 COMPILER V6.02  MAIN                                                                   05/08/2018 23:06:08 PAGE 1   
+
+
+C51 COMPILER V6.02, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\main.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE .\main.c DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          #include <reg932.h>
+   2          #include "uart.h"
+   3          
+   4          #define IE 0xA8
+   5          
+   6          //Pin variables
+   7          sbit out = P1^1;
+   8          sbit speaker = P1^7;
+   9          sbit pin1 = P0^0;
+  10          sbit pin2 = P1^2;
+  11          sbit pin3 = P1^3;
+  12          
+  13          //Switch variables
+  14          sbit sw1 = P2^0;
+  15          sbit sw2 = P0^1;
+  16          sbit sw3 = P2^3;
+  17          sbit sw4 = P0^2;
+  18          sbit sw5 = P1^4;
+  19          //sbit sw6 = P0^0;
+  20          sbit sw7 = P2^1;
+  21          sbit sw8 = P0^3;
+  22          sbit sw9 = P2^2;
+  23          
+  24          //LED variables
+  25          sbit led1 = P2^4;
+  26          sbit led2 = P0^5;
+  27          sbit led3 = P2^7;
+  28          sbit led4 = P0^6;
+  29          sbit led5 = P1^6;
+  30          sbit led6 = P0^4;
+  31          sbit led7 = P2^5;
+  32          sbit led8 = P0^7;
+  33          sbit led9 = P2^6;
+  34          
+  35          //function definitions
+  36          void playtime(int freq, int time);
+  37          void playnote(const int freq);
+  38          void mode1();
+  39          void mode2();
+  40          void mode3();
+  41          void dream_land();
+  42          void melee();
+  43          void ledON();
+  44          void ledOFF();
+  45          void melee_theme();
+  46          void dreamland_theme();
+  47          void replay();
+  48          
+  49          //global variable declarations
+  50          int mode = 0;
+  51          int LC = 0;
+  52          int w = 0;
+  53          int song[30];
+  54          int freq_table[7] = { 440, 494, 523, 587, 659, 698, 784 };
+  55          
+C51 COMPILER V6.02  MAIN                                                                   05/08/2018 23:06:08 PAGE 2   
+
+  56          void main()
+  57          {
+  58   1      	//set to bi-directional;
+  59   1      	P0M1 = 0x00;
+  60   1      	P1M1 = 0x00;
+  61   1      	P2M1 = 0x00;
+  62   1      	P3M1 = 0x00;
+  63   1      	// main loop for program
+  64   1      	while(1)
+  65   1      	{
+  66   2      		if(mode == 0)
+  67   2      			mode1();
+  68   2      		else if(mode == 1)
+  69   2      			mode2();
+  70   2      		else if(mode == 2)
+  71   2      			mode3();
+  72   2      	}
+  73   1      }
+  74          
+  75          //tune mode
+  76          void mode1()
+  77          {
+  78   1      	int i = 0;
+  79   1      	led1 = 0;
+  80   1      	led2 = 1;
+  81   1      	led3 = 1;
+  82   1      	if(!sw3) //switch modes
+  83   1      	{
+  84   2      		while(!sw3);
+  85   2      		for(i; i < 255; i++);
+  86   2      		mode = 1;
+  87   2      	}
+  88   1      
+  89   1      	if(!sw4) //play tune1
+  90   1      	{	
+  91   2      		dream_land();
+  92   2      	}
+  93   1      	if(!sw5)  //play tune2
+  94   1      	{
+  95   2      		melee();
+  96   2      	}
+  97   1      }
+  98          
+  99          //free play mode
+ 100          void mode2()
+ 101          {
+ 102   1      	int i = 0;
+ 103   1      	led1 = 1;
+ 104   1      	led2 = 0;
+ 105   1      	led3 = 1;
+ 106   1      	if(!sw3)  //switch modes
+ 107   1      	{
+ 108   2      		while(!sw3);
+ 109   2      		for(i; i < 255; i++);
+ 110   2      		mode = 2;
+ 111   2      	}
+ 112   1      
+ 113   1      	if (!sw1)
+ 114   1      	{
+ 115   2      		replay();
+ 116   2      	}
+ 117   1      	//play A
+C51 COMPILER V6.02  MAIN                                                                   05/08/2018 23:06:08 PAGE 3   
+
+ 118   1      	while(!sw7)
+ 119   1      	{
+ 120   2      		led7 = 0;
+ 121   2      		playtime(440, 16);
+ 122   2      		if(w<30)
+ 123   2      		{
+ 124   3      			song[w] = 440;  //adds note to song
+ 125   3      			w++; //increments the replay counter
+ 126   3      		}
+ 127   2      	}
+ 128   1      	led7 = 1;
+ 129   1      	
+ 130   1      	//play B
+ 131   1      	while(!sw8)
+ 132   1      	{
+ 133   2      		led8 = 0;
+ 134   2      		playtime(494, 16);
+ 135   2      		if(w<30)
+ 136   2      		{
+ 137   3      			song[w] = 494;  //adds note to song
+ 138   3      			w++;  //increments the replay counter
+ 139   3      		}
+ 140   2      	}
+ 141   1      	led8 = 1;
+ 142   1      
+ 143   1      	//play C
+ 144   1      	while(!sw9)
+ 145   1      	{
+ 146   2      		led9 = 0;
+ 147   2      		playtime(554, 16);
+ 148   2      		if(w<30)
+ 149   2      		{
+ 150   3      			song[w] = 554;  //adds note to song
+ 151   3      			w++;  //increments the replay counter
+ 152   3      		}
+ 153   2      	}
+ 154   1      	led9 = 1;
+ 155   1      }
+ 156          
+ 157          // Thomas Priest: Play from serial input
+ 158          void mode3()
+ 159          {
+ 160   1      	char cnote;		// store user inputs
+ 161   1      	int inote;
+ 162   1      	int i = 0;
+ 163   1      	
+ 164   1      	led1 = 1;
+ 165   1      	led2 = 1;
+ 166   1      	led3 = 0;
+ 167   1      	if(!sw3)  //switch modes
+ 168   1      	{
+ 169   2      		while(!sw3);
+ 170   2      		for(i; i < 255; i++);
+ 171   2      		mode = 0;
+ 172   2      	}
+ 173   1      	EA = 1;			// enable serial communication
+ 174   1      	uart_init();
+ 175   1      	while(RI == 0)
+ 176   1      	{
+ 177   2      			if(!sw3)  //switch modes
+ 178   2      		{
+ 179   3      			while(!sw3);
+C51 COMPILER V6.02  MAIN                                                                   05/08/2018 23:06:08 PAGE 4   
+
+ 180   3      			for(i; i < 255; i++);
+ 181   3      			mode = 0;
+ 182   3      			return;
+ 183   3      		}
+ 184   2      	}
+ 185   1      	
+ 186   1      	cnote = uart_get();		// receive input
+ 187   1      	RI = 0;
+ 188   1      	
+ 189   1      	inote = freq_table[(cnote - 65)];	// calculate frequency index and look up on table
+ 190   1      	playtime(inote, 16);	// play note
+ 191   1      	
+ 192   1      
+ 193   1      	EA = 0;
+ 194   1      }
+ 195          
+ 196          //note playing function
+ 197          void playtime(int freq, int time)
+ 198          {
+ 199   1      	int i = 0;
+ 200   1      	EA = 1;
+ 201   1      	uart_init();
+ 202   1      	uart_transmit((freq / 100 % 10)+ '0');
+ 203   1      	uart_transmit((freq / 10 % 10) + '0');
+ 204   1      	uart_transmit((freq % 10) + '0');
+ 205   1      	uart_transmit('H');
+ 206   1      	uart_transmit('z');
+ 207   1      	uart_transmit('\r');
+ 208   1      	uart_transmit('\n');
+ 209   1      	EA = 0;
+ 210   1      	if(freq != 0) //UART display
+ 211   1      		ledON();
+ 212   1      	TMOD = 0x11;  //set timers
+ 213   1      	for (i; i < time; i++)
+ 214   1      	{
+ 215   2      		TH0 = -36865 >> 8;  //shift values 8
+ 216   2      		TL0 = -36865;
+ 217   2      		TR0 = 1;  //start timer
+ 218   2      		while(!TF0)
+ 219   2      		{
+ 220   3      			playnote(freq);  
+ 221   3      		}
+ 222   2      		TF0 = 0;  //turn off timer
+ 223   2      	}
+ 224   1      	if(freq != 0)
+ 225   1      		ledOFF();
+ 226   1      }
+ 227          
+ 228          void playnote(const int freq)
+ 229          {
+ 230   1      	int n = (1843250 / freq)-500;  //calculate n value
+ 231   1      	TMOD = 0x11;  //set timers
+ 232   1      	if (freq > 20)
+ 233   1      	{
+ 234   2      		TH1 = -n >> 8;  //shift 8
+ 235   2      		TL1 = -n;
+ 236   2      		TR1 = 1;  //turn on timer
+ 237   2      		while(!TF1);
+ 238   2      		speaker = ~speaker;  //square wave
+ 239   2      		TF1 = 0;  //turn off timer
+ 240   2      	}
+ 241   1      }
+C51 COMPILER V6.02  MAIN                                                                   05/08/2018 23:06:08 PAGE 5   
+
+ 242          
+ 243          //send dreamland title via serial comms
+ 244          void dreamland_theme()
+ 245          {
+ 246   1      	int i;
+ 247   1      	EA = 1;
+ 248   1      	uart_init();
+ 249   1      	uart_transmit('D');
+ 250   1      	uart_transmit('r');
+ 251   1      	uart_transmit('e');
+ 252   1      	uart_transmit('a');
+ 253   1      	uart_transmit('m');
+ 254   1      	uart_transmit('l');
+ 255   1      	uart_transmit('a');
+ 256   1      	uart_transmit('n');
+ 257   1      	uart_transmit('d');
+ 258   1      	uart_transmit(' ');
+ 259   1      	uart_transmit('T');
+ 260   1      	uart_transmit('h');
+ 261   1      	uart_transmit('e');
+ 262   1      	uart_transmit('m');
+ 263   1      	uart_transmit('e');
+ 264   1      	uart_transmit('\r');
+ 265   1      	uart_transmit('\n');
+ 266   1      	for(i = 0; i < 2000; i++);
+ 267   1      	EA = 0;
+ 268   1      }
+ 269          
+ 270          //sned melee title via serial comms
+ 271          void melee_theme()
+ 272          {
+ 273   1      	int i; 
+ 274   1      	EA = 1;
+ 275   1      	uart_init();
+ 276   1      	uart_transmit('M');
+ 277   1      	uart_transmit('e');
+ 278   1      	uart_transmit('l');
+ 279   1      	uart_transmit('e');
+ 280   1      	uart_transmit('e');
+ 281   1      	uart_transmit(' ');
+ 282   1      	uart_transmit('T');
+ 283   1      	uart_transmit('h');
+ 284   1      	uart_transmit('e');
+ 285   1      	uart_transmit('m');
+ 286   1      	uart_transmit('e');
+ 287   1      	uart_transmit('\r');
+ 288   1      	uart_transmit('\n');
+ 289   1      	for(i = 0; i < 2000; i++);
+ 290   1      	EA = 0;
+ 291   1      }
+ 292          
+ 293          //play dream land theme 
+ 294          void dream_land()
+ 295          {
+ 296   1      	dreamland_theme();
+ 297   1      	playtime(1175, 32);
+ 298   1      	playtime(0, 32);
+ 299   1      	playtime(880, 32);
+ 300   1      	playtime(0, 32);
+ 301   1      	playtime(698, 32);
+ 302   1      	playtime(659, 32);
+ 303   1      	playtime(587, 32);
+C51 COMPILER V6.02  MAIN                                                                   05/08/2018 23:06:08 PAGE 6   
+
+ 304   1      	playtime(0, 32);
+ 305   1      	playtime(587, 32);
+ 306   1      	playtime(659, 32);
+ 307   1      	playtime(698, 32);
+ 308   1      	playtime(587, 32);
+ 309   1      	playtime(523, 32);
+ 310   1      	playtime(587, 32);
+ 311   1      	playtime(440, 32);
+ 312   1      }
+ 313          
+ 314          //play melee theme
+ 315          void melee()
+ 316          {
+ 317   1      	melee_theme();
+ 318   1      	playtime(493, 16);
+ 319   1      	playtime(370, 8);
+ 320   1      	playtime(494, 8);
+ 321   1      	playtime(740, 48);
+ 322   1      	playtime(494, 16);
+ 323   1      	playtime(740, 16);
+ 324   1      	playtime(880, 16);
+ 325   1      	playtime(831, 16);
+ 326   1      	playtime(659, 16);
+ 327   1      	playtime(494, 64);
+ 328   1      	playtime(0, 16);
+ 329   1      	playtime(494, 8);
+ 330   1      	playtime(554, 8);
+ 331   1      	playtime(587, 80);
+ 332   1      	playtime(494, 16);
+ 333   1      	playtime(587, 16);
+ 334   1      	playtime(740, 16);
+ 335   1      	playtime(659, 128);
+ 336   1      }
+ 337          
+ 338          //turn on LEDS on the breadboard
+ 339          void ledON()
+ 340          {
+ 341   1      	ES = 0;
+ 342   1      	if(LC == 0)
+ 343   1      		pin1 = 0;
+ 344   1      	if(LC == 1)
+ 345   1      		pin2 = 0;
+ 346   1      	if(LC == 2)
+ 347   1      		pin3 = 0;
+ 348   1      }
+ 349          
+ 350          //turn off LEDS on the breadboard
+ 351          void ledOFF()
+ 352          {
+ 353   1      	if(LC == 0)
+ 354   1      		pin1 = 1;
+ 355   1      	if(LC == 1)
+ 356   1      		pin2 = 1;
+ 357   1      	if(LC == 2)
+ 358   1      		pin3 = 1;
+ 359   1      	LC++;
+ 360   1      	if(LC == 3)
+ 361   1      		LC = 0;
+ 362   1      }
+ 363          
+ 364          //Andrew Floyd Song Maker Function
+ 365          void replay()
+C51 COMPILER V6.02  MAIN                                                                   05/08/2018 23:06:08 PAGE 7   
+
+ 366          {
+ 367   1      	int i = 0;
+ 368   1      	int y = 0;
+ 369   1      	for (i; i < w; i++)  //replays the song that is saved
+ 370   1      	{
+ 371   2      		playtime(song[i], 16);
+ 372   2      	}
+ 373   1      	for (y; y < 34; y++)  //clears the song
+ 374   1      	{
+ 375   2      		song[y] = 0;
+ 376   2      	}
+ 377   1      	w = 0;  //resets the song starting point
+ 378   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1372    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     80      14
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
